@@ -3,7 +3,7 @@ library(tidyverse)
 library(ggplot2)
 library(gridGraphics)
 library(cowplot)
-
+  
 # susie_path = "../data/susie/"
 susie_path = "../data/susie_rnaseq/"
 # suffix = ".HumanHT12V4.txt.gz"

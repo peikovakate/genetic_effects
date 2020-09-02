@@ -9,8 +9,6 @@ nrow(effects)
 
 betas <- select(effects, starts_with('beta.')) %>% rename_all(function(x){sub("beta.", "", x)})
 betas <- as.matrix(betas)
-# SOMETHING IS WRONG
-# betas <- betas*sign(betas[max.col(abs(betas))])
 
 # betas <- t(apply(betas, 1, function(x){
 #   abs_x <- abs(x)
@@ -24,7 +22,7 @@ tissue_names <- colnames(betas)
 # h = hclust(dist(t(betas)))
 # plot(h)
 # Pairwise correlation between tissues
-m = "pearson"
+m = "spearman"
 cols.cor <- cor(betas, method = m)
 hclust.col <- hclust(as.dist(1-cols.cor))
 plot(hclust.col)

@@ -3,10 +3,11 @@ library(mashr)
 library(pheatmap)
 library(ggplot2)
 library(RColorBrewer)
-source("pipeline/visualisation_utils.R")
+library(ggrepel)
+source("visualisation_utils.R")
 
-effects_file = "pipeline_data/effects_microarr.tsv"
-# effects_file <- "../data/rnaseq/rnaseq_effects.tsv"
+# effects_file = "../data/microarray/effects_microarr.tsv"
+effects_file <- "../data/rnaseq/rnaseq_effects.tsv"
 
 effects <- read_tsv(effects_file)
 nrow(effects)
@@ -42,10 +43,24 @@ U.ed   = cov_ed(data, U.pca)
 
 # m = mash(data, c(U.c, U.ed))
 m = mash(data, U.ed)
-save(m, file = "../data/mash/microarr_mash_1_ed_only.R")
+# save(m, file = "../data/mash/microarr_mash_1_ed_only.R")
 # load("../data/mash/rnaseq_mash_1_ed_only.R")
 
 sharing = get_pairwise_sharing(m)
+coords = MASS::isoMDS(1-sharing)
+
+cols.cor <- cor(effects_matrix, method = m)
+coords = MASS::isoMDS(1-cols.cor)
+
+coords = tibble(x = coords$points[,1], y=coords$points[,2], qtlGroup=rownames(coords$points))
+ggplot2::ggplot(coords, aes(x, y)) +
+  ggplot2::geom_point() +
+  geom_label_repel(aes(label = qtlGroup), size=3) +
+  theme_classic() 
+
+
+  # geom_label_repel(aes(label = qtlGroup))
+  # ggplot2::geom_text(aes(label=qtlGroup),hjust=0, vjust=0)
 
 # pheatmap(get_pairwise_sharing(m.ed))
 hmap(
