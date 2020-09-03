@@ -3,7 +3,7 @@ library(tidyverse)
 output_file = "variants_across_tissues_rnaseq_no_effect_to_zero_fract0.tsv"
 sumstat_variants = "rnaseq_variants.tsv"
 is_mean = F
-fraction = 0
+fraction = 0.95
 
 # file with sumstat of variants from connected components
 # found_variants = read_tsv("data/found_in_sumstat2_microarr.tsv")

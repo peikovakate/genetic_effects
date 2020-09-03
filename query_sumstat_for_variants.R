@@ -9,7 +9,7 @@ parser <- optparse::add_option(parser, c('-s', "--sumstat_file"),
                                type = "character", 
                                help = "eqtl catalogue sumstat file, with molecular_id column")
 parser <- optparse::add_option(parser, c('-p', '--pattern'),
-                               default = "_microarray.nominal.sorted.txt.gz",
+                               default = "_ge.nominal.sorted.tsv.gz",
                                type="character", 
                                help = "sumstat file pattern ending, similar for all tissues")
 parser <- optparse::add_option(parser, c('-o', '--output_dir'),
@@ -22,17 +22,17 @@ pattern <- args$pattern
 variants_file <- args$variants
 output_dir <- args$output_dir
 
-sumstat <- "../data/sumstat_2/TwinsUK.skin_ge.nominal.sorted.tsv.gz"
-pattern <- args$pattern
-variants_file <- "../data2/connected_components/rnaseq_cc.tsv"
-output_dir <- "../data2/sumstat/"
+# sumstat <- "../data/sumstat_2/TwinsUK.skin_ge.nominal.sorted.tsv.gz"
+# pattern <- args$pattern
+# variants_file <- "../data2/connected_components/rnaseq_cc.tsv"
+# output_dir <- "../data2/sumstat/"
 
 print(paste("Sumstats file", sumstat))
 print(paste("Sumstats file pattern", pattern))
 print(paste("Read file with variants", variants_file))
 
 variants = readr::read_tsv(variants_file)
-variants = variants[1:5000, ]
+# variants = variants[1:5000, ]
 # head(variants)
 
 # extract the name of QTL group
