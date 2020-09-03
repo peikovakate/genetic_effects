@@ -1,16 +1,39 @@
 `%>%` <- magrittr::`%>%`
 
-susie_path = "../data/susie_rnaseq/"
-suffix = ".ge.txt.gz"
-output_file = "../data2/connected_components/rnaseq_cc.tsv"
-z_threshold <- 3
-cs_size_threshold <- 50
+parser <- optparse::OptionParser()
+parser <- optparse::add_option(parser, c("-m", "--fine_mapping"), 
+                               type = "character", 
+                               default = "../data/susie_rnaseq/",
+                               help="folder with fine-mapping results")
+parser <- optparse::add_option(parser, c('-p', '--pattern'),
+                               default = ".ge.txt.gz",
+                               type ="character", 
+                               help = "fine-mapping file pattern ending, same for all qtl groups")
+parser <- optparse::add_option(parser, c('-o', '--output'), 
+                               default = "../data2/connected_components/rnaseq_cc.tsv",
+                               type="character", 
+                               help="output filename")
+parser <- optparse::add_option(parser, c('-z', '--z_score'), 
+                               default = 3, 
+                               type="double", 
+                               help="z score threshold, (absolute z values are compared)")
+parser <- optparse::add_option(parser, c('-c', "--cs_size"), 
+                               default = 50, 
+                               type="integer", 
+                               help="max size of credible set to include into connected components")
 
+args = optparse::parse_args(parser)
+print(args)
+
+susie_path = args$fine_mapping
+suffix = args$pattern
+output_file = args$output
+z_threshold <- args$z_score
+cs_size_threshold <- args$cs_size
 
 files <- list.files(susie_path, pattern=suffix)
 # print("Files with given pattern")
 # print(files)
-
 
 #' read_fine_mapping
 #'
@@ -44,9 +67,9 @@ read_fine_mapping <- function(file_names, susie_folder_path){
 #' @return list with counts of credible sets and genes
 cs_counts <-  function(fine_mapped){
   cs = dplyr::group_by(tbl_fine_mapped, qtl_group) %>% 
-    dplyr::summarise(cs = n_distinct(cs_id))
+    dplyr::summarise(cs = dplyr::n_distinct(cs_id))
   genes = dplyr::group_by(tbl_fine_mapped, qtl_group) %>% 
-    dplyr::summarise(genes = n_distinct(phenotype_id))
+    dplyr::summarise(genes = dplyr::n_distinct(phenotype_id))
   return(list(credible_sets = cs, genes = genes))
 }
 
@@ -56,24 +79,6 @@ csDfToList <- function(cs_df){
     purrr::map(~.$variant_id)
   return(cs_list)
 }
-
-
-fine_mapped = read_fine_mapping(files, susie_folder_path = susie_path)
-fine_mapped$qtl_groups
-tbl_fine_mapped = fine_mapped$credible_sets
-counts = cs_counts(tbl_fine_mapped) 
-
-filtered_cs <- tbl_fine_mapped %>% 
-  dplyr::group_by(cs_uid) %>% 
-  dplyr::mutate(max_abs_z = max(abs(z))) %>% 
-  dplyr::filter(max_abs_z > z_threshold, cs_size < cs_size_threshold) %>% 
-  dplyr::ungroup()
-
-gene_groups <- filtered_cs %>% 
-  dplyr::group_by(phenotype_id) %>% 
-  dplyr::group_split()
-
-print(paste("Unique genes", length(gene_groups)))
 
 get_cc <- function(phenotype_group){
   # phenotype_group <-  ungroup(phenotype_group)
@@ -111,12 +116,46 @@ get_cc <- function(phenotype_group){
   
 }
 
-variants_connected_components <- lapply(gene_groups, get_cc)
-variants_connected_components <- dplyr::bind_rows(connected_components)
+#' build_connected_components
+#'
+#' @param credible_sets tibble with credible set variants, cs_uid
+#'
+#' @return same tibble with additional column cc_id (id of connected component)
+build_connected_components <- function(credible_sets){
+  gene_groups <- credible_sets %>% 
+    dplyr::group_by(phenotype_id) %>% 
+    dplyr::group_split()
+  
+  print(paste("Unique genes", length(gene_groups)))
+  
+  variants_connected_components <- lapply(gene_groups, get_cc)
+  variants_connected_components <- dplyr::bind_rows(variants_connected_components)
+  return(variants_connected_components)
+}
 
+# reading the files with fine-mapped credible sets from susie
+fine_mapped = read_fine_mapping(files, susie_folder_path = susie_path)
+# fine_mapped$qtl_groups
+tbl_fine_mapped = fine_mapped$credible_sets
 
+# find number of unique genes and credible sets per qtl group
+cs_counts(tbl_fine_mapped) 
+
+# filter the credible sets by its size and z-score
+filtered_cs <- tbl_fine_mapped %>% 
+  dplyr::group_by(cs_uid) %>% 
+  dplyr::mutate(max_abs_z = max(abs(z))) %>% 
+  dplyr::filter(max_abs_z > z_threshold, cs_size < cs_size_threshold) %>% 
+  dplyr::ungroup()
+
+# find connected components among credible sets
+variants_connected_components <- build_connected_components(filtered_cs)
+
+# save fine-mapped variants with connected component id to file
 directory_name = dirname(output_file)
 if(!dir.exists(directory_name)){
   dir.create(directory_name, recursive = T)
 }
+
+print(paste("writing to file", output_file))
 readr::write_tsv(variants_connected_components, output_file, quote_escape=F)
