@@ -1,7 +1,3 @@
-suppressPackageStartupMessages(library(GenomicRanges))
-suppressPackageStartupMessages(library(Rsamtools))
-suppressPackageStartupMessages(library(tidyverse))
-
 #' A general function to quickly import tabix indexed tab-separated files into data_frame
 #'
 #' @param tabix_file Path to tabix-indexed text file
@@ -95,9 +91,9 @@ analyse_chunk <-
            cell_type,
            sumstat_folder,
            pattern) {
-    region <-  GRanges(
+    region <-  GenomicRanges::GRanges(
       seqnames = chunk$min_pos_chr,
-      ranges = IRanges(start = chunk$min_pos,
+      ranges = IRanges::IRanges(start = chunk$min_pos,
                        end = chunk$max_pos)
     )
     
@@ -117,8 +113,7 @@ analyse_chunk <-
     eqtls <-
       mapply(function(r, target_variants, phenotype) {
         if (!is.null(r)) {
-          filter(r,
-                 variant %in% target_variants & molecular_trait_id == phenotype)
+          dplyer::filter(r, variant %in% target_variants & molecular_trait_id == phenotype)
         }
       },
       regions,
@@ -133,6 +128,6 @@ analyse_chunk <-
     }, eqtls, names(eqtls), SIMPLIFY = F)
     
     eqtls_mapped <- dplyr::bind_rows(eqtls_mapped)
-    eqtls_mapped <- dplyr::mutate(eqtls_mapped, cell_type = cell_type)
+    # eqtls_mapped <- dplyr::mutate(eqtls_mapped, qtlGroup = cell_type)
     return(eqtls_mapped)
   }
