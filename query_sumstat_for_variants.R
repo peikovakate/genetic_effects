@@ -16,7 +16,7 @@ parser <- optparse::add_option(parser, c('-o', '--output_dir'),
                                type="character", 
                                help = "output dir")
 args = optparse::parse_args(parser)
-
+# 
 sumstat <- args$sumstat_file
 pattern <- args$pattern
 variants_file <- args$variants
@@ -32,16 +32,18 @@ print(paste("Sumstats file pattern", pattern))
 print(paste("Read file with variants", variants_file))
 
 variants = readr::read_tsv(variants_file, col_types = readr::cols())
-# variants = variants[1:5000, ]
+# some of the variants can be duplicated, we don't want to query them multiple times
+unique_variants = dplyr::distinct(variants, variant_id, pos, chr)
+# unique_variants = unique_variants[1:5000, ]
 # head(variants)
 
 # extract the name of QTL group
 qtlGroup = stringr::str_split(basename(sumstat), pattern, simplify = T)[1]
 
 region <- GenomicRanges::GRanges(
-  seqnames = variants$chr,
-  ranges = IRanges::IRanges(start = variants$pos,
-                   end = variants$pos)
+  seqnames = unique_variants$chr,
+  ranges = IRanges::IRanges(start = unique_variants$pos,
+                   end = unique_variants$pos)
 )
 
 print("Start tabix scan")
