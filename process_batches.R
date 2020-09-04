@@ -4,13 +4,19 @@
 
 
 parser <- optparse::OptionParser()
-parser <- optparse::add_option(parser, c("-c", "--cc_file"), type = "character", help="file with variants and cc_id")
-parser <- optparse::add_option(parser, c('-j', "--jobname"), type = "character", help="slurm job name")
+parser <- optparse::add_option(parser, 
+                               c("-c", "--cc_file"), 
+                               type = "character", 
+                               help="file with variants and cc_id")
+parser <- optparse::add_option(parser, 
+                               c('-j', "--jobname"), 
+                               type = "character", 
+                               help="slurm job name")
 parser <- optparse::add_option(parser, c('-s', "--sumstat_folder"), 
-                     default = "/gpfs/hpc/projects/eQTLCatalogue/summary_stats/v0.2/final/",
+                     default = "/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/",
                      type = "character", help = "folder with eqtl catalogue sumstat")
 parser <- optparse::add_option(parser, c('-p', '--pattern'),
-                     default = "_microarray.nominal.sorted.txt.gz",
+                     default = "_ge.nominal.sorted.tsv.gz",
                      type="character", 
                      help = "sumstat file pattern ending similar for all tissues")
 parser <- optparse::add_option(parser, c('-t', '--time'), 
@@ -47,7 +53,9 @@ print(qtlGroups)
 
 process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folder, pattern){
   print(getwd())
-  source("utils.R")
+  # the script is executed from directory _rslurm_[jobname]
+  # so we need to source utils from one level higher
+  source("../utils.R")
   get_chunk <- function(chunk_number, connected_components, cc_variants){
     indices <- splitIntoChunks(chunk_number, N_chunks, nrow(connected_components))
     cc_chunk <- connected_components[indices, ]
