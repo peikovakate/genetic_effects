@@ -88,7 +88,7 @@ splitIntoChunks <- function(chunk_number, n_chunks, n_total) {
 analyse_chunk <-
   function(chunk,
            chunk_variants,
-           cell_type,
+           qtlGroup,
            sumstat_folder,
            pattern) {
     region <-  GenomicRanges::GRanges(
@@ -99,10 +99,10 @@ analyse_chunk <-
     
     regions <- scanTabixDataFrame(
       sprintf(paste0(sumstat_folder, "%s", pattern),
-              cell_type),
+              qtlGroup),
       region,
       col_names = eqtl_colnames,
-      col_types = cols(alt = "c", ref = "c")
+      col_types = readr::cols(alt = "c", ref = "c")
     )
     
     # name regions after connected component id
@@ -128,6 +128,6 @@ analyse_chunk <-
     }, eqtls, names(eqtls), SIMPLIFY = F)
     
     eqtls_mapped <- dplyr::bind_rows(eqtls_mapped)
-    # eqtls_mapped <- dplyr::mutate(eqtls_mapped, qtlGroup = cell_type)
+    # eqtls_mapped <- dplyr::mutate(eqtls_mapped, qtlGroup = qtlGroup)
     return(eqtls_mapped)
   }
