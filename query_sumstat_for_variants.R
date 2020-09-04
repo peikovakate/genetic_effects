@@ -31,7 +31,7 @@ print(paste("Sumstats file", sumstat))
 print(paste("Sumstats file pattern", pattern))
 print(paste("Read file with variants", variants_file))
 
-variants = readr::read_tsv(variants_file)
+variants = readr::read_tsv(variants_file, col_types = readr::cols())
 # variants = variants[1:5000, ]
 # head(variants)
 

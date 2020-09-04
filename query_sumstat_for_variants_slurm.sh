@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p main
 #SBATCH -t 2:00:00
-#SBATCH --mem=50G
+#SBATCH --mem=100G
 #SBATCH --output=query_sumstat_for_variants.out
 
 s=$1
