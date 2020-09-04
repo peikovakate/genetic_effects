@@ -8,11 +8,11 @@ Workflow:
 ```
 s=/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/
 p=_ge.nominal.sorted.tsv.gz
-v=cc_variants.tsv
-o=cc_sumstat.tsv
+v=../data/cc_rnaseq.tsv
+o=../data/cc_rnaseq_sumstat.tsv
 
 for f in $(ls $s/*$p); 
-do sbatch query_sumstat_for_variants.sh $s $p $v $o;
+do sbatch query_sumstat_for_variants_slurm.sh $f $p $v $o;
 done
 ```
 
