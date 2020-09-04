@@ -113,7 +113,7 @@ analyse_chunk <-
     eqtls <-
       mapply(function(r, target_variants, phenotype) {
         if (!is.null(r)) {
-          dplyer::filter(r, variant %in% target_variants & molecular_trait_id == phenotype)
+          dplyr::filter(r, variant %in% target_variants & molecular_trait_id == phenotype)
         }
       },
       regions,

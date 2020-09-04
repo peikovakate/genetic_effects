@@ -7,26 +7,27 @@ parser <- optparse::OptionParser()
 parser <- optparse::add_option(parser, 
                                c("-c", "--cc_file"), 
                                type = "character", 
-                               help="file with variants and cc_id")
+                               help="file with variants and cc_id (one directory upper)")
 parser <- optparse::add_option(parser, 
                                c('-j', "--jobname"), 
                                type = "character", 
                                help="slurm job name")
-parser <- optparse::add_option(parser, c('-s', "--sumstat_folder"), 
-                     default = "/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/",
-                     type = "character", help = "folder with eqtl catalogue sumstat")
+parser <- optparse::add_option(parser, 
+                               c('-s', "--sumstat_folder"), 
+                               default = "/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/",
+                               type = "character", help = "folder with eqtl catalogue sumstat")
 parser <- optparse::add_option(parser, c('-p', '--pattern'),
-                     default = "_ge.nominal.sorted.tsv.gz",
-                     type="character", 
-                     help = "sumstat file pattern ending similar for all tissues")
+                               default = "_ge.nominal.sorted.tsv.gz",
+                               type="character", 
+                               help = "sumstat file pattern ending similar for all tissues")
 parser <- optparse::add_option(parser, c('-t', '--time'), 
-                     default = "4:00:00", 
-                     type="character", 
-                     help="max job time, ex. 4:00:00")
+                               default = "4:00:00", 
+                               type="character", 
+                               help="max job time, ex. 4:00:00")
 parser <- optparse::add_option(parser, c('-m', '--mem'), 
-                     default = "25G", 
-                     type="character", 
-                     help="max job memory usage, ex. 10G")
+                               default = "25G", 
+                               type="character", 
+                               help="max job memory usage, ex. 10G")
 
 args = optparse::parse_args(parser)
 
@@ -56,6 +57,8 @@ process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folde
   # the script is executed from directory _rslurm_[jobname]
   # so we need to source utils from one level higher
   source("../utils.R")
+  `%>%` <- magrittr::`%>%`
+  
   get_chunk <- function(chunk_number, connected_components, cc_variants){
     indices <- splitIntoChunks(chunk_number, N_chunks, nrow(connected_components))
     cc_chunk <- connected_components[indices, ]
@@ -68,8 +71,8 @@ process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folde
   
   # define minimum and maximum position
   all_pairs <- all_pairs %>%
-    group_by(cc_id) %>%
-    mutate(
+    dplyr::group_by(cc_id) %>%
+    dplyr::mutate(
       min_pos = min(pos),
       max_pos = max(pos),
       min_pos_chr = chr[which.min(pos)],
@@ -77,8 +80,8 @@ process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folde
     )
   
   connected_components <- all_pairs %>%
-    select(cc_id, phenotype_id, min_pos, max_pos, min_pos_chr) %>%
-    distinct(.keep_all = T)
+    dplyr::select(cc_id, phenotype_id, min_pos, max_pos, min_pos_chr) %>%
+    dplyr::distinct(.keep_all = T)
   
   # find variants in each connected component
   cc_groups <- split(all_pairs, all_pairs$cc_id)
