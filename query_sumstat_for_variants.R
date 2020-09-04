@@ -33,17 +33,24 @@ print(paste("Read file with variants", variants_file))
 
 variants = readr::read_tsv(variants_file, col_types = readr::cols())
 # some of the variants can be duplicated, we don't want to query them multiple times
-unique_variants = dplyr::distinct(variants, variant_id, pos, chr)
-# unique_variants = unique_variants[1:5000, ]
-# head(variants)
+# unique_variants = dplyr::distinct(variants, variant_id, pos, chr)
+
+# grouping by connected component to query regions rather than each variant separately
+# to reduce number of queries
+cc_coords = variants %>% 
+  dplyr::group_by(cc_id) %>% 
+  dplyr::summarise(start = min(pos), end = max(pos), chr=chr[1])
+# cc_coords = cc_coords[1:1000, ]
+
+# head(cc_coords)
 
 # extract the name of QTL group
 qtlGroup = stringr::str_split(basename(sumstat), pattern, simplify = T)[1]
 
 region <- GenomicRanges::GRanges(
-  seqnames = unique_variants$chr,
-  ranges = IRanges::IRanges(start = unique_variants$pos,
-                   end = unique_variants$pos)
+  seqnames = cc_coords$chr,
+  ranges = IRanges::IRanges(start = cc_coords$pos,
+                   end = cc_coords$pos)
 )
 
 print("Start tabix scan")
