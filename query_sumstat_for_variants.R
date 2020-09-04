@@ -49,8 +49,8 @@ qtlGroup = stringr::str_split(basename(sumstat), pattern, simplify = T)[1]
 
 region <- GenomicRanges::GRanges(
   seqnames = cc_coords$chr,
-  ranges = IRanges::IRanges(start = cc_coords$pos,
-                   end = cc_coords$pos)
+  ranges = IRanges::IRanges(start = cc_coords$start,
+                   end = cc_coords$end)
 )
 
 print("Start tabix scan")
