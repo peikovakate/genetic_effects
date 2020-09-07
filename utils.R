@@ -102,7 +102,7 @@ analyse_chunk <-
               qtlGroup),
       region,
       col_names = eqtl_colnames,
-      col_types = readr::cols(alt = "c", ref = "c", type="c", rsid="c")
+      col_types = readr::cols(alt = "c", ref = "c", type="c", rsid="c", r2="c")
     )
     
     # name regions after connected component id
@@ -131,3 +131,6 @@ analyse_chunk <-
     # eqtls_mapped <- dplyr::mutate(eqtls_mapped, qtlGroup = qtlGroup)
     return(eqtls_mapped)
   }
+
+
+# effects_to_beta
