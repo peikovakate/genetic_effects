@@ -67,7 +67,7 @@ process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folde
   }
   
   # read file with eQTL-gene pairs and connetected components ids assigned to pairs
-  all_pairs <- readr::read_tsv(cc_file, col_types = readr::cols())
+  all_pairs <- readr::read_tsv(cc_file, col_types = readr::cols(alt = "c", ref = "c"))
   
   # define minimum and maximum position
   all_pairs <- all_pairs %>%

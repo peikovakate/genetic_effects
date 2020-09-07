@@ -102,7 +102,7 @@ analyse_chunk <-
               qtlGroup),
       region,
       col_names = eqtl_colnames,
-      col_types = readr::cols(alt = "c", ref = "c")
+      col_types = readr::cols(alt = "c", ref = "c", type="c", rsid="c")
     )
     
     # name regions after connected component id

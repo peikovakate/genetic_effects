@@ -59,7 +59,7 @@ start_time <- Sys.time()
 regions <- scanTabixDataFrame(sumstat,
   region,
   col_names = eqtl_colnames,
-  col_types = readr::cols(alt = "c", ref = "c")
+  col_types = readr::cols(alt = "c", ref = "c", type="c", rsid="c")
 )
 
 print(Sys.time() - start_time)
