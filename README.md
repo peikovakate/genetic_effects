@@ -16,6 +16,12 @@ do sbatch query_sumstat_for_variants_slurm.sh $f $p $v $o;
 done
 ```
 
+or 
+
+```
+Rscript process_batches.R -c ../../data/cc_rnaseq.tsv -j rnaseq_sumstat
+```
+
 3. Combine eqtl susmstats across all qtl groups (merge tsvs into one)
 4. Select eqtls that are most frequent (or at least in 95% of qtlGroups)
 5. Extract effects (beta, se, p-value) into sep tibble
