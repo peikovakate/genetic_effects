@@ -33,6 +33,7 @@ if(!dir.exists(output_dir)){
 }
 
 qtl_group = strsplit(basename(sumstat_file), split=pattern)[[1]]
+# getting the name of file with coords (CHR, POS)
 coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
 temp_sumstat_file = file.path(output_dir, paste0(qtl_group, "_temp.tsv"))
 
@@ -43,13 +44,6 @@ if("phenotype_id" %in% names(variants)){
 if("variant_id" %in% names(variants)){
   variants = dplyr::rename(variants, variant = variant_id)
 }
-
-coords = variants %>% dplyr::select(chr, pos) %>% 
-  dplyr::rename(CHROM = chr, POS=pos) %>% 
-  dplyr::distinct(.keep_all = T) %>% 
-  dplyr::arrange(CHROM, POS)
-
-readr::write_tsv(coords, coords_file, col_names = F)
 
 input = paste(sumstat_file, "-R", coords_file, ">", temp_sumstat_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)

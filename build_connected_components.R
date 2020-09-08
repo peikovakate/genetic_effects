@@ -31,7 +31,6 @@ output_file = args$output
 z_threshold <- args$z_score
 cs_size_threshold <- args$cs_size
 
-files <- list.files(susie_path, pattern=suffix)
 # print("Files with given pattern")
 # print(files)
 
@@ -130,13 +129,24 @@ build_connected_components <- function(credible_sets){
   
   variants_connected_components <- lapply(gene_groups, get_cc)
   variants_connected_components <- dplyr::bind_rows(variants_connected_components)
+  
+  print("Total connected components:")
+  print(nrow(dplyr::distinct(variants_connected_components, cc_id)))
   return(variants_connected_components)
 }
 
-# reading the files with fine-mapped credible sets from susie
-fine_mapped = read_fine_mapping(files, susie_folder_path = susie_path)
-# fine_mapped$qtl_groups
-tbl_fine_mapped = fine_mapped$credible_sets
+
+paths = strsplit(susie_path, " ")
+tbl_fine_mapped = lapply(paths, function(fine_mapping_path){
+  files <- list.files(fine_mapping_path, pattern=suffix)
+  # reading the files with fine-mapped credible sets from susie
+  fine_mapped = read_fine_mapping(files, susie_folder_path = susie_path)
+  # fine_mapped$qtl_groups
+  return(fine_mapped$credible_sets)
+})
+
+
+tbl_fine_mapped = dplyr::bind_rows(tbl_fine_mapped)
 
 # find number of unique genes and credible sets per qtl group
 cs_counts(tbl_fine_mapped) 
@@ -159,4 +169,14 @@ if(!dir.exists(directory_name)){
 
 print(paste("writing to file", output_file))
 readr::write_tsv(variants_connected_components, output_file, quote_escape=F)
+
+coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', output_file))
+
+print(paste("writing variant coords to file", coords_file))
+
+coords = variants_connected_components %>% dplyr::select(chr, pos) %>% 
+  dplyr::rename(CHROM = chr, POS=pos) %>% 
+  dplyr::distinct(.keep_all = T) %>% 
+  dplyr::arrange(CHROM, POS)
+readr::write_tsv(coords, coords_file, col_names = F)
 
