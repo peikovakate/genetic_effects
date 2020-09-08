@@ -44,29 +44,20 @@ coords = variants %>% dplyr::select(chr, pos) %>%
   dplyr::distinct(.keep_all = T) %>% 
   dplyr::arrange(CHROM, POS)
 
-readr::write_tsv(coords, coords_file, col_names = F)
+readr::write_tsv(coords[1:50000], coords_file, col_names = F)
 
 input = paste(sumstat_file, "-R", coords_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)
 
-handle_sumstat_output = function(output){
+handle_sumstat_output = function(output) {
   if (length(output) > 0) {
-    if (length(output) == 1) {
-      #Hack to make sure that it also works for data frames with only one row
-      #Adds an empty row and then removes it
-      result = paste(paste(sumstat_out, collapse = "\n"), "\n", sep = "")
-      result = readr::read_tsv(sumstat_out, col_names = eqtl_colnames, col_types = eqtl_col_types)[1,]
-    } else{
-      result = paste(sumstat_out, collapse = "\n")
-      result = readr::read_tsv(sumstat_out, col_names = eqtl_colnames, col_types = eqtl_col_types)
-    }
+    result = readr::read_tsv(output, col_names = eqtl_colnames, col_types = eqtl_col_types)
   } else{
     # Return NULL if the nothing is returned from tabix file
     result = NULL
   }
   return(result)
 }
-
 
 sumstat = handle_sumstat_output(sumstat_out)
 sumstat = dplyr::inner_join(sumstat, 
