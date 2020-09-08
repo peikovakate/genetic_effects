@@ -28,9 +28,13 @@ pairs_file <- args$variants
 output_dir <- args$output_dir
 tabix_path = args$tabix
 
+if(!dir.exists(output_dir)){
+  dir.create(output_dir, recursive = T)
+}
+
 qtl_group = strsplit(basename(sumstat_file), split=pattern)[[1]]
 coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
-temp_sumstat_file = paste(qtl_group, "_temp.tsv")
+temp_sumstat_file = file.path(output_dir, paste0(qtl_group, "_temp.tsv"))
 
 variants = readr::read_tsv(pairs_file, col_types = readr::cols())
 if("phenotype_id" %in% names(variants)){
@@ -63,10 +67,6 @@ file.remove(temp_sumstat_file)
 
 print(qtl_group)
 print(paste("Found pairs:", nrow(sumstat)))
-
-if(!dir.exists(output_dir)){
-  dir.create(output_dir, recursive = T)
-}
 
 readr::write_tsv(sumstat, file.path(output_dir, paste0(qtl_group, ".tsv")))
 
