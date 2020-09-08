@@ -50,17 +50,8 @@ readr::write_tsv(coords, coords_file, col_names = F)
 input = paste(sumstat_file, "-R", coords_file, ">", temp_sumstat_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)
 
-handle_sumstat_output = function(output) {
-  if (length(output) > 0) {
-    result = readr::read_tsv(temp_sumstat_file, col_names = eqtl_colnames, col_types = eqtl_col_types)
-  } else{
-    # Return NULL if the nothing is returned from tabix file
-    result = NULL
-  }
-  return(result)
-}
+sumstat = readr::read_tsv(temp_sumstat_file, col_names = eqtl_colnames, col_types = eqtl_col_types)
 
-sumstat = handle_sumstat_output(sumstat_out)
 sumstat = dplyr::inner_join(sumstat, 
                             variants[c("molecular_trait_id", "variant", "cc_id")], 
                             by=c("variant", "molecular_trait_id"))
