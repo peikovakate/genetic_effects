@@ -30,6 +30,7 @@ tabix_path = args$tabix
 
 qtl_group = strsplit(basename(sumstat_file), split=pattern)[[1]]
 coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
+temp_sumstat_file = paste(qtl_group, "_temp.tsv")
 
 variants = readr::read_tsv(pairs_file, col_types = readr::cols())
 if("phenotype_id" %in% names(variants)){
@@ -46,12 +47,12 @@ coords = variants %>% dplyr::select(chr, pos) %>%
 
 readr::write_tsv(coords, coords_file, col_names = F)
 
-input = paste(sumstat_file, "-R", coords_file)
+input = paste(sumstat_file, "-R", coords_file, ">", temp_sumstat_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)
 
 handle_sumstat_output = function(output) {
   if (length(output) > 0) {
-    result = readr::read_tsv(output, col_names = eqtl_colnames, col_types = eqtl_col_types)
+    result = readr::read_tsv(temp_sumstat_file, col_names = eqtl_colnames, col_types = eqtl_col_types)
   } else{
     # Return NULL if the nothing is returned from tabix file
     result = NULL
@@ -66,6 +67,8 @@ sumstat = dplyr::inner_join(sumstat,
 sumstat = dplyr::mutate(sumstat, qtl_group = qtl_group)
 # remove duplicates with rsid
 sumstat = dplyr::select(sumstat, -rsid) %>%  dplyr::distinct(.keep_all = T)
+
+file.remove(temp_sumstat_file)
 
 print(qtl_group)
 print(paste("Found pairs:", nrow(sumstat)))
