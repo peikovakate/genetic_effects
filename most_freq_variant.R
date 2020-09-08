@@ -1,4 +1,4 @@
-library(tidyverse)
+`%>%` <- magrittr::`%>%`
 
 output_file = "variants_across_tissues_rnaseq_no_effect_to_zero_fract0.tsv"
 sumstat_variants = "rnaseq_variants.tsv"
@@ -7,7 +7,7 @@ fraction = 0.95
 
 # file with sumstat of variants from connected components
 # found_variants = read_tsv("data/found_in_sumstat2_microarr.tsv")
-found_variants = read_tsv(sumstat_variants)
+found_variants = readr::read_tsv(sumstat_variants)
 unique_tissues = unlist(distinct(found_variants, cell_type))
 n_unique_tissues = length(unique_tissues)
 
@@ -18,16 +18,16 @@ print(paste("There are", nrow(found_variants), "unique records"))
 
 # for every variant in some cc count number of tissues and cell types where it's found
 found_variants <- found_variants %>%
-  group_by(cc_id, variant) %>%
-  mutate(count = length(unique(cell_type))) %>% 
-  ungroup()
+  dplyr::group_by(cc_id, variant) %>%
+  dplyr::mutate(count = length(unique(cell_type))) %>% 
+  dplyr::ungroup()
 
 print("Variants per number of cell types or tissues (where it's found)")
 print(table(found_variants$count))
 
 connected_components <- found_variants %>%
-  group_by(cc_id) %>%
-  group_split()
+  dplyr::group_by(cc_id) %>%
+  dplyr::group_split()
 
 print("Number of cc")
 print(length(connected_components))
@@ -44,7 +44,7 @@ most_freq_across_component <-
       dplyr::filter(cc, variant == target_eqtl$variant) %>% distinct(cell_type, .keep_all = T)
     } else if (target_eqtl$count >= floor(n_unique_tissues * fraction)) {
       found = dplyr::filter(cc, variant == target_eqtl$variant) %>% distinct(cell_type, .keep_all = T)
-      tissues_not_found = setdiff(unique_tissues, unique((found$cell_type)))
+      tissues_not_found = dplyr::setdiff(unique_tissues, unique((found$cell_type)))
       rest <- lapply(tissues_not_found, function(x) {
         found[1,] %>% mutate(cell_type = x)
       })
@@ -70,12 +70,12 @@ most_freq_across_component <-
     }
   })
 
-all_variants <- bind_rows(most_freq_across_component)
-all_variants %>% select(cc_id) %>% distinct() %>% nrow()
+all_variants <- dplyr::bind_rows(most_freq_across_component)
+all_variants %>% dplyr::select(cc_id) %>% dplyr::distinct() %>% nrow()
 
 # removing directory name from cell type names
 # cell_types = strsplit(all_variants$cell_type, split = "/")
 # cell_types = unlist(lapply(cell_types, "[[", 2))
 # all_variants = mutate(all_variants, cell_type = cell_types)
 
-write_tsv(all_variants, output_file, quote_escape = F)
+readr::write_tsv(all_variants, output_file, quote_escape = F)

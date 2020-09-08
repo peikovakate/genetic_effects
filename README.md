@@ -9,17 +9,11 @@ Workflow:
 s=/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/
 p=_ge.nominal.sorted.tsv.gz
 v=../data/cc_rnaseq.tsv
-o=../data/cc_rnaseq_sumstat.tsv
+o=../data/sumstat_rnaseq/
 
 for f in $(ls $s/*$p); 
-do sbatch query_sumstat_for_variants_slurm.sh $f $p $v $o;
+do sbatch query_sumstat_with_tabix.sh $f $p $v $o;
 done
-```
-
-or 
-
-```
-Rscript process_batches.R -c ../../data/cc_rnaseq.tsv -j rnaseq_sumstat
 ```
 
 3. Combine eqtl susmstats across all qtl groups (merge tsvs into one)

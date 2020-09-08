@@ -159,3 +159,4 @@ if(!dir.exists(directory_name)){
 
 print(paste("writing to file", output_file))
 readr::write_tsv(variants_connected_components, output_file, quote_escape=F)
+

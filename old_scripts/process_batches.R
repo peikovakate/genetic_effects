@@ -63,7 +63,7 @@ process_job <- function(qtlGroup, chunk_number, N_chunks, cc_file, sumstat_folde
     indices <- splitIntoChunks(chunk_number, N_chunks, nrow(connected_components))
     cc_chunk <- connected_components[indices, ]
     cc_variants_chunk <- cc_variants[indices]
-    return(list(connected_components = cc_chunk, variants = cc_variants_chunk))
+    return(list(connected_components = cc_chunk, variants = cc_variants_chunk))termtersettsese
   }
   
   # read file with eQTL-gene pairs and connetected components ids assigned to pairs
