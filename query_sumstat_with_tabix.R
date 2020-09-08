@@ -31,7 +31,7 @@ tabix_path = args$tabix
 qtl_group = strsplit(basename(sumstat_file), split=pattern)[[1]]
 coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
 
-variants = readr::read_tsv(pairs_file)
+variants = readr::read_tsv(pairs_file, col_types = readr::cols())
 if("phenotype_id" %in% names(variants)){
   variants = dplyr::rename(variants, molecular_trait_id = phenotype_id)  
 }
