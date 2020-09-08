@@ -44,7 +44,7 @@ coords = variants %>% dplyr::select(chr, pos) %>%
   dplyr::distinct(.keep_all = T) %>% 
   dplyr::arrange(CHROM, POS)
 
-readr::write_tsv(coords[1:50000], coords_file, col_names = F)
+readr::write_tsv(coords, coords_file, col_names = F)
 
 input = paste(sumstat_file, "-R", coords_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)
@@ -74,5 +74,5 @@ if(!dir.exists(output_dir)){
   dir.create(output_dir, recursive = T)
 }
 
-readr::write_tsv(sumstat, paste0(output_dir, qtl_group, ".tsv"))
+readr::write_tsv(sumstat, file.path(output_dir, paste0(qtl_group, ".tsv")))
 
