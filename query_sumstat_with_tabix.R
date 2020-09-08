@@ -76,6 +76,9 @@ sumstat = dplyr::mutate(sumstat, qtl_group = qtl_group)
 # remove duplicates with rsid
 sumstat = dplyr::select(sumstat, -rsid) %>%  dplyr::distinct(.keep_all = T)
 
+print(qtl_group)
+print(paste("Found pairs:", nrow(sumstat)))
+
 if(!dir.exists(output_dir)){
   dir.create(output_dir, recursive = T)
 }
