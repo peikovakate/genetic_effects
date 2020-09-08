@@ -136,11 +136,11 @@ build_connected_components <- function(credible_sets){
 }
 
 
-paths = strsplit(susie_path, " ")
+paths = unlist(strsplit(susie_path, " "))
 tbl_fine_mapped = lapply(paths, function(fine_mapping_path){
   files <- list.files(fine_mapping_path, pattern=suffix)
   # reading the files with fine-mapped credible sets from susie
-  fine_mapped = read_fine_mapping(files, susie_folder_path = susie_path)
+  fine_mapped = read_fine_mapping(files, susie_folder_path = fine_mapping_path)
   # fine_mapped$qtl_groups
   return(fine_mapped$credible_sets)
 })

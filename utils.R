@@ -135,9 +135,11 @@ analyse_chunk <-
   }
 
 sumstat_to_effects <- function(sumstat){
-  # remove identical records
-  # rsid column causes duplications
-  sumstat = sumstat %>% dplyr::select(-rsid) %>% dplyr::distinct(.keep_all = T)
+  if("rsid" %in% names(sumstat)){
+    # remove identical records
+    # rsid column causes duplications
+    sumstat = sumstat %>% dplyr::select(-rsid) %>% dplyr::distinct(.keep_all = T)
+  }
   
   sumstat = dplyr::mutate(sumstat, eqtl_id = paste(variant, molecular_trait_id, sep="."))
   sumstat = dplyr::arrange(sumstat, eqtl_id)

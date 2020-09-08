@@ -17,6 +17,11 @@ done
 ```
 
 3. Combine eqtl susmstats across all qtl groups (merge tsvs into one)
+
+```
+srun --mem=20G -t 30 Rscript combine_query_sumstat_for_variants.R -f ../data/sumstat_rnaseq/ -o ../data/sumstat_rnaseq_comb.tsv
+```
+
 4. Select eqtls that are most frequent (or at least in 95% of qtlGroups)
 5. Extract effects (beta, se, p-value) into sep tibble
 6. Find sharing and similarities
