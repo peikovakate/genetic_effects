@@ -370,18 +370,24 @@ summary {
 <p>Workflow:</p>
 <ol style="list-style-type: decimal">
 <li>Build connected components from fine-mapped credible sets</li>
+</ol>
+<pre><code>srun --mem=20G --time=01:00:00 Rscript build_connected_components.R -m &quot;/gpfs/hpc/projects/eQTLCatalogue/susie-finemapping/GTEx_v7/susie /gpfs/hpc/projects/eQTLCatalogue/susie-finemapping/eQTL_Catalogue_r3/susie&quot; -p _ge.purity_filtered.txt.gz -o ../data/gtex/cc.tsv</code></pre>
+<ol start="2" style="list-style-type: decimal">
 <li>Fetch for variants from connected components in eQTL sumstat files for each qtl group</li>
 </ol>
 <pre><code>s=/gpfs/hpc/projects/eQTLCatalogue/qtlmap/eQTL_Catalogue_r3/pipeline_out/sumstats/
 p=_ge.nominal.sorted.tsv.gz
-v=cc_variants.tsv
-o=cc_sumstat.tsv
+v=../data/cc_rnaseq.tsv
+o=../data/sumstat_rnaseq/
 
 for f in $(ls $s/*$p); 
-do sbatch query_sumstat_for_variants.sh $s $p $v $o;
+do sbatch query_sumstat_with_tabix.sh $f $p $v $o;
 done</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Combine eqtl susmstats across all qtl groups (merge tsvs into one)</li>
+</ol>
+<pre><code>srun --mem=20G -t 30 Rscript combine_query_sumstat_for_variants.R -f ../data/sumstat_rnaseq/ -o ../data/sumstat_rnaseq_comb.tsv</code></pre>
+<ol start="4" style="list-style-type: decimal">
 <li>Select eqtls that are most frequent (or at least in 95% of qtlGroups)</li>
 <li>Extract effects (beta, se, p-value) into sep tibble</li>
 <li>Find sharing and similarities</li>

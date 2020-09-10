@@ -134,20 +134,3 @@ analyse_chunk <-
     return(eqtls_mapped)
   }
 
-sumstat_to_effects <- function(sumstat){
-  if("rsid" %in% names(sumstat)){
-    # remove identical records
-    # rsid column causes duplications
-    sumstat = sumstat %>% dplyr::select(-rsid) %>% dplyr::distinct(.keep_all = T)
-  }
-  
-  sumstat = dplyr::mutate(sumstat, eqtl_id = paste(variant, molecular_trait_id, sep="."))
-  sumstat = dplyr::arrange(sumstat, eqtl_id)
-  
-  pvalues = reshape2::dcast(sumstat, eqtl_id ~ qtlGroup, value.var = "pvalue", fill = NA)
-  betas = reshape2::dcast(sumstat, eqtl_id ~ qtlGroup, value.var = "beta", fill = NA)
-  ses = reshape2::dcast(sumstat, eqtl_id ~ qtlGroup, value.var = "se", fill = NA)
-  return(list(pvalue = pvalues, beta = betas, se = ses))
-}
-
-
