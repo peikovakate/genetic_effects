@@ -16,8 +16,8 @@ sumstat_to_effects <- function(sumstat){
 }
 
 sumstat = readr::read_tsv(sumstat_file, 
-                        col_types=readr::cols_only(variant='c', molecular_trait_id='c', beta='d', 
-                                                   pvalue='d', se='d', cc_id='c', qtl_group='c'))
+                        col_types=readr::cols_only(variant='c', molecular_trait_id='c', chromosome='c', position='c'
+                                                   beta='d', pvalue='d', se='d', cc_id='c', qtl_group='c'))
 
 sumstat = dplyr::mutate(sumstat, eqtl_id = paste(variant, molecular_trait_id, sep="."))
 sumstat = dplyr::distinct(sumstat, eqtl_id, qtl_group, .keep_all = T)
@@ -62,8 +62,9 @@ subset_lead_effects = lead_effects %>%
 nrow(subset_lead_effects)
 
 readr::write_tsv(lead_effects, file.path(output_folder, "lead_effects_na.tsv"))
-lead_pairs = dplyr::distinct(lead_effects, variant, molecular_trait_id)
-readr::write_tsv(lead_pairs, file.path(output_folder, "lead_pairs.tsv"))
+lead_pairs = dplyr::distinct(lead_effects, variant, molecular_trait_id, position, chromosome)
+readr::write_tsv(dplyr::select(lead_pairs, molecular_trait_id, variant, chromosome, position), 
+                 file.path(output_folder, "lead_pairs.tsv"))
 
 readr::write_tsv(subset_lead_effects, file.path(output_folder, "subset_lead_effects_na.tsv"))
 
