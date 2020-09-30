@@ -1,4 +1,5 @@
 `%>%` <- magrittr::`%>%`
+source("utils2.R")
 sumstat_file = "../data/gtex/sumstat_comb.tsv"
 output_folder = "../data/gtex/"
 frac = 0.95
@@ -7,16 +8,8 @@ if(!dir.exists(output_folder)){
   dir.create(output_folder, recursive = T)
 }
 
-sumstat_to_effects <- function(sumstat){
-  # sumstat = dplyr::arrange(sumstat, eqtl_id)
-  pvalues = dplyr::as_tibble(reshape2::dcast(sumstat, eqtl_id ~ qtl_group, value.var = "pvalue", fill = NA))
-  betas = dplyr::as_tibble(reshape2::dcast(sumstat, eqtl_id ~ qtl_group, value.var = "beta", fill = NA))
-  ses = dplyr::as_tibble(reshape2::dcast(sumstat, eqtl_id ~ qtl_group, value.var = "se", fill = NA))
-  return(list(pvalue = pvalues, beta = betas, se = ses))
-}
-
 sumstat = readr::read_tsv(sumstat_file, 
-                        col_types=readr::cols_only(variant='c', molecular_trait_id='c', chromosome='c', position='c'
+                        col_types=readr::cols_only(variant='c', molecular_trait_id='c', chromosome='c', position='c',
                                                    beta='d', pvalue='d', se='d', cc_id='c', qtl_group='c'))
 
 sumstat = dplyr::mutate(sumstat, eqtl_id = paste(variant, molecular_trait_id, sep="."))

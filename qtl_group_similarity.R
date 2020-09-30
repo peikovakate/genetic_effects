@@ -18,6 +18,7 @@ plot_coords = function(coords){
   coords
   plt = ggplot2::ggplot(coords, aes(x, y, colour=group, grp=qtl_group)) +
     ggplot2::geom_point() +
+    scale_colour_manual(values=colours$colour)  +
     # geom_label_repel(aes(label = qtlGroup), size=3) +
     theme_classic()
   fig <- ggplotly(plt, tooltip = c("qtl_group"))
