@@ -4,6 +4,8 @@
 #SBATCH --mem=10G
 #SBATCH --output=query_sumstat_with_tabix.out
 
+module load bcftools-1.9
+
 s=$1
 p=$2
 v=$3
