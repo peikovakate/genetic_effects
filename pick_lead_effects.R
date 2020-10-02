@@ -33,7 +33,7 @@ sumstat = readr::read_tsv(sumstat_file,
 sumstat = dplyr::mutate(sumstat, eqtl_id = paste(variant, molecular_trait_id, sep="."))
 sumstat = dplyr::distinct(sumstat, eqtl_id, qtl_group, .keep_all = T)
 
-ccs = dplyr::distinct(sumstat, eqtl_id, cc_id, variant, molecular_trait_id)
+ccs = dplyr::distinct(sumstat, eqtl_id, cc_id, variant, molecular_trait_id, chromosome, position)
 
 data = sumstat_to_effects(sumstat)
 
@@ -67,6 +67,7 @@ lead_effects = effects %>%
 nrow(lead_effects)
 
 readr::write_tsv(lead_effects, file.path(output_folder, "lead_effects_na.tsv"))
+
 lead_pairs = dplyr::distinct(lead_effects, variant, molecular_trait_id, position, chromosome)
 readr::write_tsv(dplyr::select(lead_pairs, molecular_trait_id, variant, chromosome, position), 
                  file.path(output_folder, "lead_pairs.tsv"))
