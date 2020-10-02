@@ -1,8 +1,26 @@
 `%>%` <- magrittr::`%>%`
 source("utils2.R")
-sumstat_file = "../data/gtex/sumstat_comb.tsv"
-output_folder = "../data/gtex/"
-frac = 0.95
+
+parser <- optparse::OptionParser()
+parser <- optparse::add_option(parser, c("-s", "--sumstat"), 
+                               type = "character", 
+                               default = "../data/gtex/sumstat_comb.tsv",
+                               help="sumstat data for all qtl groups combined")
+parser <- optparse::add_option(parser, c('-o', '--output'), 
+                               default = "../data/gtex/",
+                               type="character", 
+                               help="output folder")
+parser <- optparse::add_option(parser, c('-f', '--frac'), 
+                               default = 0.95, 
+                               type="double", 
+                               help="fraction of qtl groups (present in at least fraction) for subset of effects")
+
+args = optparse::parse_args(parser)
+print(args)
+
+sumstat_file = args$sumstat
+output_folder = args$output
+frac = args$frac
 
 if(!dir.exists(output_folder)){
   dir.create(output_folder, recursive = T)
@@ -48,16 +66,16 @@ lead_effects = effects %>%
 
 nrow(lead_effects)
 
+readr::write_tsv(lead_effects, file.path(output_folder, "lead_effects_na.tsv"))
+lead_pairs = dplyr::distinct(lead_effects, variant, molecular_trait_id, position, chromosome)
+readr::write_tsv(dplyr::select(lead_pairs, molecular_trait_id, variant, chromosome, position), 
+                 file.path(output_folder, "lead_pairs.tsv"))
+
 max_n = max(lead_effects$qtl_group_count)
 subset_lead_effects = lead_effects %>% 
   dplyr::filter(qtl_group_count >= max_n*frac)
 
 nrow(subset_lead_effects)
-
-readr::write_tsv(lead_effects, file.path(output_folder, "lead_effects_na.tsv"))
-lead_pairs = dplyr::distinct(lead_effects, variant, molecular_trait_id, position, chromosome)
-readr::write_tsv(dplyr::select(lead_pairs, molecular_trait_id, variant, chromosome, position), 
-                 file.path(output_folder, "lead_pairs.tsv"))
 
 readr::write_tsv(subset_lead_effects, file.path(output_folder, "subset_lead_effects_na.tsv"))
 
