@@ -26,25 +26,27 @@ plot_coords = function(coords){
 }
 
 
-effects_file <- "../data2/gtex/lead_effects_na.tsv"
+effects_file <- "../data2/microarr/subset_lead_effects_na.tsv"
 effects <- readr::read_tsv(effects_file)
 nrow(effects)
 
 eqtls = effects_to_matricies(effects, replace_na_with="zero")
 cor_method = "spearman"
 cols.cor <- cor(eqtls$beta, method = cor_method)
-pheatmap(cols.cor, cutree_rows = 7, colorRampPalette(brewer.pal(n = 7, name ="OrRd"))(100),
-         fontsize=7,border_color=NA,
-         filename=sprintf("figures/gtex/%s_55k_zero_pheatmap.png", cor_method), width=12, height=10)
+pheatmap::pheatmap(cols.cor, cutree_rows = 5, colorRampPalette(brewer.pal(n = 7, name ="OrRd"))(100),
+         fontsize=12,border_color=NA,
+         filename=sprintf("figures/microarr/%s_12k_zero_pheatmap.png", cor_method), width=12, height=10)
 
 coords = MASS::isoMDS(1-cols.cor)
 plot_coords(coords)
 
 ########## sharing ##########
 
-pheatmap(sharing, cutree_rows = 7, colorRampPalette(brewer.pal(n = 7, name ="OrRd"))(100),
-         fontsize=7,border_color=NA,
-         filename="figures/gtex/mash_55k_ed_heatmap.png", width=12, height=10)
+load("../data2/microarr/mash_13k_na_to_mean_mash_ed_sharing.R")
+
+pheatmap(sharing, cutree_rows = 5, colorRampPalette(brewer.pal(n = 7, name ="OrRd"))(100),
+         fontsize=12,border_color=NA,
+         filename="figures/microarr/mash_13k_mean_ed_heatmap.png", width=12, height=10)
 
 coords = MASS::isoMDS(1-sharing)
 plot_coords(coords)

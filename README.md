@@ -28,6 +28,11 @@ done
 srun --mem=40G -t 50 Rscript combine_query_sumstat_for_variants.R -f ../data/gtex/sumstat -o ../data/gtex/sumstat_comb.tsv
 ``` 
 
-4. Select eqtls that are most frequent (or at least in 95% of qtlGroups)
+4. Select lead eqtls
+
+```
+srun --mem=20G -t 50 Rscript pick_lead_effects.R -s ../data/microarr/sumstat_comb.tsv -o ../data/microarr/
+```
+
 5. Extract effects (beta, se, p-value) into sep tibble
 6. Find sharing and similarities

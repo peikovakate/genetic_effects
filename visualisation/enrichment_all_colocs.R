@@ -1,19 +1,49 @@
 library(tidyverse)
 source("utils2.R")
 
-colocs = read_tsv("../data2/gtex/novel_eqtlcat_colocs_in_novel_ldblocks_relative_to_GTExV8.tsv")
+metadata = read_tsv("../data2/additional/HumanHT-12_V4_Ensembl_96_phenotype_metadata.tsv")
+colocs = read_tsv("../data2/additional/eqtlCat_all_sign_colocs.tsv")
 
 colocs = mutate(colocs, eqtl_id = paste(variant, molecular_trait_id, sep="."))
 colocs = colocs %>% select(gwas_id, eqtl_id) %>% distinct()
 
 
+n_distinct(colocs$eqtl_id)
+
 # loadings_file = "../data2/gtex/mfactorization/mapping/sn_spMF_K50_a11050_l11500_Loadings_beta_alpha0.05_corrected.txt"
 loadings_file = "../data2/gtex/mfactorization/mapping/mapping_sn_spMF_K50_a11050_l11500_Loadings_beta_alpha0.05.txt"
 loadings = read.delim(loadings_file)
+loadings = loadings_to_tibble(loadings) 
 
-loadings = loadings_to_tibble(loadings) %>% select(-variant, -gene)
+pvalues_file = "../data2/gtex/mfactorization/mapping/mapping_sn_spMF_K50_a11050_l11500_Loadings_pvalue_BH.txt"
+pvalues = read.delim(pvalues_file)
+pvalues = loadings_to_tibble(pvalues) 
+# pvalues = left_join(pvalues, metadata[c("gene_name", "gene_id")], by=c("gene"="gene_id"))
+
+pvalues = pvalues %>% 
+  rowwise() %>% 
+  mutate_at(vars(starts_with("Factor")), function(x){if (x < 0) 1 else x}) %>% ungroup()
+
+subset_eqtl_id = 
+  pvalues %>% 
+  pivot_longer(c(-gene, -variant, -eqtl_id), names_to="Factor") %>% 
+  group_by(gene) %>% 
+  mutate(min_p = min(value)) %>% 
+  pivot_wider(names_from=Factor) %>% 
+  filter_at(vars(starts_with("Factor")), any_vars(. == min_p)) %>% 
+  sample_n(1) %>% 
+  ungroup() %>% 
+  arrange(gene)
+# %>% select(-variant, -gene)
+
+n_distinct(pvalues$gene)
+nrow(subset_eqtl_id)
+
+loadings = loadings %>% filter(eqtl_id %in% subset_eqtl_id$eqtl_id)
 
 loading_coloc = left_join(loadings, colocs, by="eqtl_id")
+# loading_coloc = left_join(loading_coloc, metadata[c("gene_name", "gene_id")], by=c("gene"="gene_id"))
+# loading_coloc = loading_coloc %>% group_by(gene_name) %>% sample_n(1)
 
 factors = tidyr::pivot_longer(loading_coloc, cols = colnames(loadings)[startsWith(colnames(loadings), "Factor")], 
                               names_to = "Factors", values_to = "Loadings")
@@ -64,7 +94,7 @@ fisher_test = function(factors){
   return(test)
   
 }
-# test = fisher_test(factors)
+test = fisher_test(factors)
 test = fisher_test(max_factor)
 test = left_join(test, factor_names, by=c("Factors"="factor"))
 significant = test %>% filter(p < 0.05)

@@ -38,7 +38,7 @@ sumstat_to_effects <- function(sumstat){
   return(list(pvalue = pvalues, beta = betas, se = ses))
 }
 
-loadings_to_tibble <- function(loadings, factor_names = NULL){
+loadings_to_tibble <- function(loadings){
   colnames(loadings) = paste0("Factor", 1:ncol(loadings))
   genes = sapply(strsplit(rownames(loadings), split = " "), "[[", 1)
   variants = sapply(strsplit(rownames(loadings), split = " "), "[[", 2)
