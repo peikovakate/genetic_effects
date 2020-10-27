@@ -52,6 +52,7 @@ input = paste(sumstat_file, "-R", coords_file, ">", temp_sumstat_file)
 sumstat_out = system2(tabix_path, args=input, stdout = T)
 
 # read results in temp file
+# eqtl_colnames and eqtl_col_types are defined in utils.R file
 sumstat = readr::read_tsv(temp_sumstat_file, col_names = eqtl_colnames, col_types = eqtl_col_types)
 
 sumstat = dplyr::inner_join(sumstat, 
