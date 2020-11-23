@@ -20,13 +20,17 @@ parser <- optparse::add_option(parser,
                                type="character", 
                                default = "tabix",
                                help="path to tabix cmd tool")
+parser <- optparse::add_option(parser,
+                               c("-r", "--rm_rsid"), action = "store_true", default = TRUE,
+                               help = "Remove rsid column and duplicates from results [default]")
 args = optparse::parse_args(parser)
 
 sumstat_file <- args$sumstat_file
 pattern <- args$pattern
 pairs_file <- args$variants
 output_dir <- args$output_dir
-tabix_path = args$tabix
+tabix_path <-  args$tabix
+rm_rsid <- args$rm_rsid
 
 if(!dir.exists(output_dir)){
   dir.create(output_dir, recursive = T)
@@ -55,12 +59,23 @@ sumstat_out = system2(tabix_path, args=input, stdout = T)
 # eqtl_colnames and eqtl_col_types are defined in utils.R file
 sumstat = readr::read_tsv(temp_sumstat_file, col_names = eqtl_colnames, col_types = eqtl_col_types)
 
+if("cc_id" %in% colnames(variants)){
+  cols_to_join = c("molecular_trait_id", "variant", "cc_id")
+}else {
+  cols_to_join = c("molecular_trait_id", "variant")
+}
+
 sumstat = dplyr::inner_join(sumstat, 
-                            variants[c("molecular_trait_id", "variant", "cc_id")], 
+                            variants[cols_to_join], 
                             by=c("variant", "molecular_trait_id"))
 sumstat = dplyr::mutate(sumstat, qtl_group = qtl_group)
+
+
 # remove duplicates with rsid
-sumstat = dplyr::select(sumstat, -rsid) %>%  dplyr::distinct(.keep_all = T)
+if(rm_rsid){
+  sumstat = dplyr::select(sumstat, -rsid) %>% dplyr::distinct(.keep_all = T)  
+}
+
 # delete temp file
 file.remove(temp_sumstat_file)
 
