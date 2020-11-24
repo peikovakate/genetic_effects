@@ -23,6 +23,9 @@ parser <- optparse::add_option(parser,
 parser <- optparse::add_option(parser,
                                c("-r", "--rm_rsid"), action = "store_true", default = TRUE,
                                help = "Remove rsid column and duplicates from results [default]")
+parser <- optparse::add_option(parser, c("-c", "--coords"),
+                               default = NA, type="character",
+                               help="File with coordinates to fetch")
 args = optparse::parse_args(parser)
 
 sumstat_file <- args$sumstat_file
@@ -31,14 +34,13 @@ pairs_file <- args$variants
 output_dir <- args$output_dir
 tabix_path <-  args$tabix
 rm_rsid <- args$rm_rsid
+coords_file <- args$coords
 
 if(!dir.exists(output_dir)){
   dir.create(output_dir, recursive = T)
 }
 
 qtl_group = strsplit(basename(sumstat_file), split=pattern)[[1]]
-# getting the name of file with coords (CHR, POS)
-coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
 temp_sumstat_file = file.path(output_dir, paste0(qtl_group, "_temp.tsv"))
 
 variants = readr::read_tsv(pairs_file, col_types = readr::cols())
@@ -49,6 +51,19 @@ if("phenotype_id" %in% names(variants)){
 }
 if("variant_id" %in% names(variants)){
   variants = dplyr::rename(variants, variant = variant_id)
+}
+
+# if file with coordinates to query was not provided
+if(is.na(coords_file)){
+  # getting the name of file with coords (CHR, POS)
+  coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
+  
+  coords = variants %>% dplyr::select(chr, pos) %>% 
+    dplyr::rename(CHROM = chr, POS=pos) %>% 
+    dplyr::distinct(.keep_all = T) %>% 
+    dplyr::arrange(CHROM, POS)
+  
+  readr::write_tsv(coords, coords_file, col_names = F)
 }
 
 # set file with variant coordinates as input and redirect output of tabix to temporary file
