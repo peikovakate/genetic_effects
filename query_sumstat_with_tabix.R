@@ -20,8 +20,8 @@ parser <- optparse::add_option(parser,
                                type="character", 
                                default = "tabix",
                                help="path to tabix cmd tool")
-parser <- optparse::add_option(parser,
-                               c("-r", "--rm_rsid"), action = "store_true", default = TRUE,
+parser <- optparse::add_option(parser, type="logical",
+                               c("-r", "--rm_rsid"), action = "store_true", default = FALSE,
                                help = "Remove rsid column and duplicates from results [default]")
 parser <- optparse::add_option(parser, c("-c", "--coords"),
                                default = NA, type="character",
