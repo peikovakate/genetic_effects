@@ -56,7 +56,8 @@ if("variant_id" %in% names(variants)){
 # if file with coordinates to query was not provided
 if(is.na(coords_file)){
   # getting the name of file with coords (CHR, POS)
-  coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
+  # coords_file = sprintf("%s_coords.tsv", sub('\\.tsv$', '', pairs_file))
+  coords_file = "coords.tsv"
   
   coords = variants %>% dplyr::select(chr, pos) %>% 
     dplyr::rename(CHROM = chr, POS=pos) %>% 
