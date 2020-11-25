@@ -57,17 +57,17 @@ eqtl_colnames = c(
   "alt",
   "variant",
   "ma_samples",
-  "ac",
-  "an",
   "maf",
   "pvalue",
   "beta",
   "se",
+  "type",
+  "ac",
+  "an", 
+  "r2",
   "molecular_trait_object_id",
   "gene_id",
-  "mediat_tpm",
-  "r2",
-  "type",
+  "median_tpm",
   "rsid"
 )
 
